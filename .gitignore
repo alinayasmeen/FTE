@@ -1,0 +1,29 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Qwen
+.qwen/
+
+# GitHub Actions credentials
+gha-creds-*.json
+
+# Obsidian
+.obsidian/workspace.json
+
+# Zone identifiers (Windows)
+*:Zone.Identifier
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local

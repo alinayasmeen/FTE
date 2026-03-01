@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "browsing-with-playwright": {
+      "source": "subhankaladi/personal-ai-employee",
+      "sourceType": "github",
+      "computedHash": "17200d755c11709ba2392496bd2825467262947caf11535fc855ceb94609e1c0"
+    }
+  }
+}

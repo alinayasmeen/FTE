@@ -1,0 +1,16 @@
+# AI Employee - Bronze Tier Dependencies
+# Install with: pip install -r requirements.txt
+
+# File system watching
+watchdog>=4.0.0
+
+# HTTP requests (for future API integrations)
+requests>=2.31.0
+
+# Optional: For Gmail watcher (Silver tier upgrade)
+# google-api-python-client>=2.100.0
+# google-auth-httplib2>=0.1.0
+# google-auth-oauthlib>=1.1.0
+
+# Optional: For WhatsApp watcher (Silver tier upgrade)  
+# playwright>=1.40.0

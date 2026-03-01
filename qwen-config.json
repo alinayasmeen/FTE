@@ -1,0 +1,23 @@
+# Qwen Code Configuration for AI Employee
+# WSL Native Setup: Windows Obsidian accesses via \\wsl.localhost\Ubuntu\
+
+{
+  "vault_path_windows": "\\\\wsl.localhost\\Ubuntu\\home\\alina\\Hackathon_4\\FTE\\AI_Employee_Vault",
+  "vault_path_wsl": "/home/alina/Hackathon_4/FTE/AI_Employee_Vault",
+  "skills": [
+    {
+      "name": "file-processor",
+      "description": "Process files from the Needs_Action folder, categorize them, and move to Done when complete",
+      "triggers": ["Files appear in /Needs_Action/FILE_*.md"],
+      "permissions": {
+        "read": ["/Needs_Action/**", "/Company_Handbook.md", "/Dashboard.md"],
+        "write": ["/Needs_Action/**", "/Done/**", "/Dashboard.md", "/Plans/**"]
+      }
+    }
+  ],
+  "ralph_loop": {
+    "enabled": true,
+    "max_iterations": 10,
+    "completion_pattern": "<promise>TASK_COMPLETE</promise>"
+  }
+}
