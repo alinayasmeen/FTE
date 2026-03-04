@@ -65,47 +65,95 @@ cd /home/alina/Hackathon_4/FTE
 pip install -r requirements.txt
 ```
 
-### 2. Start the File Watcher
+### 2. Start Full Automation (Recommended)
 
 ```bash
-python scripts/filesystem_watcher.py \
+# Start the combined orchestrator with Qwen integration
+./scripts/start-automation.sh
+
+# Or run directly:
+python scripts/orchestrator.py \
   --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
-  --drop-folder /home/alina/Hackathon_4/FTE/AI_Employee_Vault/Inbox
+  --watch \
+  --interval 5
 ```
 
 ### 3. Test the Workflow
 
+**Simple Mode (Auto-processing):**
 1. Drop a file into `AI_Employee_Vault/Inbox/`
-2. Watcher creates action file in `Needs_Action/`
-3. Ask Qwen: *"Process all files in Needs_Action folder"*
-4. Qwen processes, updates Dashboard, moves to Done
+2. Orchestrator auto-creates action file in `Needs_Action/`
+3. Orchestrator auto-processes and moves to `Done/`
+4. Dashboard updates automatically
 
-### 4. Run Autonomous Mode (Optional)
+**Approval Workflow (HITL):**
+1. Create approval file in `Pending_Approval/`
+2. **You move it to** `Approved/`
+3. Orchestrator auto-executes the approval
+4. Creates accounting entry, logs to `Updates/`
+5. Moves to `Done/`
+
+### 4. Legacy Scripts (Still Available)
 
 ```bash
+# File watcher only
+python scripts/filesystem_watcher.py \
+  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
+  --drop-folder /home/alina/Hackathon_4/FTE/AI_Employee_Vault/Inbox
+
+# Ralph loop only
 python scripts/ralph_orchestrator.py \
   --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
   --max-iterations 10
+
+# Qwen integration only
+python scripts/qwen_integration.py \
+  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
+  --watch
 ```
 
 ---
 
 ## 🔄 Workflow
 
+### **Automated Workflow (With Qwen Integration)**
+
 ```
 1. Drop file in /Inbox
          │
          ▼
-2. File Watcher detects → creates action file in /Needs_Action
+2. Orchestrator detects → creates action file in /Needs_Action
          │
          ▼
-3. Qwen Code processes the file
+3. Orchestrator auto-processes → updates Dashboard
          │
          ▼
-4. Actions taken, Dashboard updated
+4. File moved to /Done
          │
          ▼
-5. File moved to /Done
+✅ COMPLETE (No manual intervention needed)
+```
+
+### **Approval Workflow (HITL)**
+
+```
+1. Create approval request in /Pending_Approval
+         │
+         ▼
+2. 🙋 YOU review and move to /Approved
+         │
+         ▼
+3. Orchestrator detects → auto-executes
+         │
+         ├──→ Creates accounting entry in /Accounting
+         ├──→ Logs execution in /Updates
+         └──→ Updates Dashboard
+         │
+         ▼
+4. File moved to /Done (renamed COMPLETED_*)
+         │
+         ▼
+✅ COMPLETE
 ```
 
 ### File Frontmatter Format
@@ -129,15 +177,62 @@ status: pending|completed
 |-----------|--------|-------------|
 | **Obsidian Vault** | ✅ | Dashboard, Company Handbook, folder structure |
 | **File System Watcher** | ✅ | Monitors Inbox, creates action files |
-| **Qwen Code Integration** | ✅ | Reads/writes to vault, processes files |
+| **Qwen Integration** | ✅ | Auto-processes Approved/ folder |
+| **Combined Orchestrator** | ✅ | Full automation (Inbox → Done) |
 | **Agent Skills** | ✅ | `file-processor.md` skill definition |
 | **Ralph Loop** | ✅ | Autonomous processing orchestrator |
+| **Accounting Integration** | ✅ | Auto-creates expense entries |
+| **Weekly Briefings** | ✅ | Auto-generated reports |
 
 ---
 
 ## 🛠️ Scripts
 
-### filesystem_watcher.py
+### orchestrator.py (Recommended - Combined)
+
+**Full automation with Qwen integration.** Monitors all folders and auto-processes.
+
+**Features:**
+- Inbox → Needs_Action (auto-create action files)
+- Needs_Action → Done (auto-process tasks)
+- Approved → Done (auto-execute approvals with accounting)
+- Dashboard auto-updates
+- Single script for full workflow
+
+**Usage:**
+```bash
+# Watch mode (continuous)
+python scripts/orchestrator.py --vault-path /path/to/vault --watch
+
+# Single run
+python scripts/orchestrator.py --vault-path /path/to/vault
+```
+
+### start-automation.sh (Easiest)
+
+**One-command startup** for full automation.
+
+```bash
+./scripts/start-automation.sh
+```
+
+### qwen_integration.py (Approval Processor)
+
+**Qwen integration for Approved/ folder.** Auto-executes approvals.
+
+**Features:**
+- Monitors Approved/ folder
+- Auto-executes approved requests
+- Creates accounting entries
+- Logs to Updates/
+- Moves to Done/
+
+**Usage:**
+```bash
+python scripts/qwen_integration.py --vault-path /path/to/vault --watch
+```
+
+### filesystem_watcher.py (Legacy)
 
 Monitors the Inbox folder for new files and creates actionable `.md` files in `Needs_Action`.
 
@@ -147,7 +242,7 @@ Monitors the Inbox folder for new files and creates actionable `.md` files in `N
 - Tracks processed files to avoid duplicates
 - Configurable check interval
 
-### ralph_orchestrator.py
+### ralph_orchestrator.py (Legacy)
 
 Manages autonomous processing iterations using the Ralph Wiggum Loop pattern.
 

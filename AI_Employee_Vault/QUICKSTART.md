@@ -12,9 +12,9 @@
 │                                   │                         │
 │  Obsidian App                     │  Python Scripts         │
 │  \\wsl.localhost\Ubuntu\...       │  /home/alina/Hackathon_4│
-│  - Opens vault via WSL path       │  - filesystem_watcher.py│
-│  - Full access to Linux files     │  - ralph_orchestrator.py│
-│                                   │  - Qwen Code integration│
+│  - Opens vault via WSL path       │  - auto_workflow.py     │
+│  - Real-time Dashboard updates    │  - Full automation      │
+│  - View all folders               │  - Qwen integration     │
 └─────────────────────────────────────────────────────────────┘
            │                                      │
            └────────── Same files! ───────────────┘
@@ -23,7 +23,7 @@
 
 ---
 
-## 🚀 Quick Start (Bronze Tier)
+## 🚀 Quick Start (Auto Workflow - Recommended)
 
 ### Step 1: Install Dependencies (Ubuntu/WSL)
 
@@ -49,35 +49,93 @@ pip install -r requirements.txt
 
 > 💡 **Tip**: In Windows File Explorer, type `\\wsl.localhost\Ubuntu` in the address bar to browse WSL files!
 
-Now you can see all files in Obsidian!
+Now you can see the Dashboard and all folders in Obsidian!
 
-### Step 3: Start the File Watcher (Ubuntu/WSL)
+### Step 3: Start Auto Workflow (Ubuntu/WSL)
 
 ```bash
 cd /home/alina/Hackathon_4/FTE
 source .venv/bin/activate
 
-# Run watcher (uses default path)
-python scripts/filesystem_watcher.py
+# Start the complete auto workflow (watch mode)
+python scripts/auto_workflow.py --watch
 ```
 
-Keep this terminal running - it watches for new files!
+Keep this terminal running - it monitors all folders automatically!
 
-### Step 4: Test the System
+### Step 4: Test the Complete Workflow
 
-1. **Drop a test file** into the Inbox:
+1. **Drop a file in Inbox/**:
    ```bash
-   echo "Test document for processing" > /home/alina/Hackathon_4/FTE/AI_Employee_Vault/Inbox/test.txt
+   cat > AI_Employee_Vault/Inbox/TEST_Email_2026-03-03.md << 'EOF'
+   ---
+   type: email
+   from: test@example.com
+   subject: Test Email
+   priority: high
+   ---
+   
+   # Test Email
+   
+   This is a test email for workflow demo.
+   EOF
    ```
 
-2. **Wait 5 seconds** - watcher creates action file in `Needs_Action/`
+2. **Watch Obsidian Dashboard** - It updates automatically!
+   - Pending Approvals count increases
+   - Recent Activity Log shows new entry
+   - Last Activity timestamp updates
 
-3. **Open Obsidian** - you'll see the new file instantly!
+3. **Approve the Plan** (YOUR ONLY MANUAL STEP):
+   ```bash
+   mv AI_Employee_Vault/Pending_Approval/*.md AI_Employee_Vault/Approved/
+   ```
 
-4. **Ask Qwen Code** to process:
+4. **Watch Auto-Execution** in terminal:
    ```
-   "Process all files in Needs_Action folder"
+   ✅ Detected approved file
+   🎯 Created action
+   ✅ Executed action
+   💰 Created accounting entry
+   📝 Logged in Updates/
+   📊 Dashboard updated
+   📦 Moved to Done/
    ```
+
+5. **Check Obsidian** - All folders clean, Dashboard updated!
+
+---
+
+## 🔄 Complete Auto Workflow
+
+```
+1. 📥 Drop file in Inbox/
+         │
+         ▼
+2. 🔄 Auto-detect → Dashboard updates (visible in Obsidian)
+         │
+         ▼
+3. 📋 Create Plan → Plans/
+         │
+         ▼
+4. ⏳ Move to Pending_Approval/
+         │
+         ▼
+5. 🙋 YOU: Move to Approved/ (ONLY MANUAL STEP)
+         │
+         ▼
+6. ✅ Auto-Execute:
+   ├── 🎯 Create Action → Needs_Action/
+   ├── 💰 Accounting Entry → Accounting/
+   ├── 📝 Execution Log → Updates/
+   ├── 📊 Update Dashboard (live in Obsidian)
+   └── 📦 Move to Done/
+         │
+         ▼
+7. ✅ COMPLETE - All folders clean!
+```
+
+**You only do ONE thing:** Move file from `Pending_Approval/` to `Approved/`
 
 ---
 
@@ -124,7 +182,21 @@ Ask Qwen to:
 - "Create a weekly briefing from items in Done folder"
 - "Update Dashboard.md with current status"
 
-### Ralph Wiggum Loop (Autonomous Mode)
+### Auto Workflow (Recommended - No Qwen Prompting Needed)
+
+The auto workflow handles everything automatically:
+
+```bash
+cd /home/alina/Hackathon_4/FTE
+source .venv/bin/activate
+
+# Start continuous monitoring
+python scripts/auto_workflow.py --watch
+```
+
+**You only approve:** Move files from `Pending_Approval/` to `Approved/`
+
+### Ralph Wiggum Loop (Legacy Mode)
 
 ```bash
 cd /home/alina/Hackathon_4/FTE

@@ -56,7 +56,7 @@ This AI Employee exists to proactively manage personal and business affairs, fre
 1. Read email content from `/Needs_Action/EMAIL_*.md`
 2. Categorize priority (High/Medium/Low)
 3. Draft response if needed
-4. Create action items or move to `/Done`
+4. Create action items and send it for approval here `/Pending_Approval/`
 
 ### SOP-002: Handling Payment Requests
 
