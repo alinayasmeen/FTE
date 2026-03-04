@@ -12,7 +12,7 @@ review_frequency: daily
 |--------|-------|--------|
 | Pending Tasks | 0 | ✅ |
 | Pending Approvals | 0 | ✅ |
-| Last Activity | 2026-03-04 14:20:00 - Vault Reset | ✅ |
+| Last Activity | 2026-03-04 21:14:27 - Executed: ACTION_PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211427_20260304_211427.md | ✅ |
 
 ---
 
@@ -21,9 +21,9 @@ review_frequency: daily
 *Inbox is empty - Ready for new files*
 
 **To test the workflow:**
-1. Drop a `.md` file in `Inbox/`
+| Inbox/ | 1 | 📥 |
 2. Watch Dashboard update automatically
-3. Approve the plan when it appears in `Pending_Approval/`
+| Pending_Approval/ | 0 | ✅ |
 4. Watch auto-execution complete
 
 ---
@@ -44,14 +44,14 @@ review_frequency: daily
 
 | Period | Revenue | Expenses | Net |
 |--------|---------|----------|-----|
-| This Week | $0 | $0 | $0 |
-| This Month | $0 | $0 | $0 |
+| This Week | £650.00 | £5.00 | £645.00 |
+| This Month | £650.00 | £5.00 | £645.00 |
 
 ---
 
 ## 📊 Today's Priorities
 
-- [ ] Drop test file in Inbox/
+| Inbox/ | 1 | 📥 |
 - [ ] Approve plan when created
 - [ ] Verify auto-execution
 - [ ] Check Accounting entry created
@@ -71,6 +71,37 @@ review_frequency: daily
 ## 📝 Recent Activity Log
 
 | Time | Action | Status |
+| 2026-03-04 21:14:27 | Executed: ACTION_PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211427_20260304_211427.md | ✅ |
+| 2026-03-04 21:14:27 | Executing: PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211427.md | 🔄 |
+| 2026-03-04 21:14:27 | Plan created: PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211427.md | ⏳ |
+| 2026-03-04 21:14:27 | Processing: EMAIL_ASDA_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 21:14:27 | New file detected: EMAIL_ASDA_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 21:11:21 | Executed: ACTION_PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211121_20260304_211121.md | ✅ |
+| 2026-03-04 21:11:21 | Executing: PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211121.md | 🔄 |
+| 2026-03-04 21:11:21 | Plan created: PLAN_EMAIL_ASDA_650GBP_2026-03-04_20260304_211121.md | ⏳ |
+| 2026-03-04 21:11:21 | Processing: EMAIL_ASDA_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 21:11:21 | New file detected: EMAIL_ASDA_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 21:09:36 | Executed: ACTION_PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_210815_20260304_210936.md | ✅ |
+| 2026-03-04 21:09:36 | Executing: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_210815.md | 🔄 |
+| 2026-03-04 21:08:15 | Plan created: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_210815.md | ⏳ |
+| 2026-03-04 21:08:15 | Processing: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 21:08:15 | New file detected: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 20:15:06 | Executed: ACTION_PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_201424_20260304_201506.md | ✅ |
+| 2026-03-04 20:15:06 | Executing: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_201424.md | 🔄 |
+| 2026-03-04 20:14:24 | Plan created: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_201424.md | ⏳ |
+| 2026-03-04 20:14:24 | Processing: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 20:14:24 | New file detected: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 19:49:20 | Executed: ACTION_PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_194847_20260304_194920.md | ✅ |
+| 2026-03-04 19:49:20 | Executing: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_194847.md | 🔄 |
+| 2026-03-04 19:48:47 | Plan created: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_194847.md | ⏳ |
+| 2026-03-04 19:48:47 | Processing: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 19:48:47 | New file detected: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 19:40:50 | Ralph loop completed | ✅ |
+| 2026-03-04 19:29:20 | Executed: ACTION_PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_192846_20260304_192920.md | ✅ |
+| 2026-03-04 19:29:20 | Executing: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_192846.md | 🔄 |
+| 2026-03-04 19:28:46 | Plan created: PLAN_EMAIL_ASDA_Payment_650GBP_2026-03-04_20260304_192846.md | ⏳ |
+| 2026-03-04 19:28:46 | Processing: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
+| 2026-03-04 19:28:46 | New file detected: EMAIL_ASDA_Payment_650GBP_2026-03-04.md | 🔄 |
 |------|--------|--------|
 | 2026-03-04 14:20:00 | Vault reset - all folders cleaned | ✅ |
 
@@ -80,14 +111,14 @@ review_frequency: daily
 
 | Folder | Files | Status |
 |--------|-------|--------|
-| Inbox/ | 0 | ✅ Empty |
-| Pending_Approval/ | 0 | ✅ Empty |
-| Approved/ | 0 | ✅ Empty |
-| Needs_Action/ | 0 | ✅ Empty |
-| Done/ | 0 | ✅ Empty |
-| Accounting/ | 0 | ✅ Empty |
+| Inbox/ | 1 | 📥 |
+| Pending_Approval/ | 0 | ✅ |
+| Approved/ | 1 | ✅ |
+| Needs_Action/ | 1 | ✅ |
+| Done/ | 0 | ✅ |
+| Accounting/ | 1 | ✅ |
 | Updates/ | 0 | ✅ Empty |
-| Briefings/ | 0 | ✅ Empty |
+| Briefings/ | 1 | ✅ |
 
 ---
 
@@ -99,9 +130,9 @@ cd /home/alina/Hackathon_4/FTE
 python scripts/auto_workflow.py --watch
 ```
 
-**2. Drop Test File in Inbox/:**
+| Inbox/ | 1 | 📥 |
 ```bash
-cat > AI_Employee_Vault/Inbox/TEST_Email_2026-03-04.md << 'EOF'
+| Inbox/ | 1 | 📥 |
 ---
 type: email
 from: test@example.com
@@ -119,7 +150,7 @@ EOF
 
 **4. Approve Plan:**
 ```bash
-mv AI_Employee_Vault/Pending_Approval/*.md AI_Employee_Vault/Approved/
+| Approved/ | 1 | ✅ |
 ```
 
 **5. Watch Auto-Execution Complete!**
@@ -129,7 +160,7 @@ mv AI_Employee_Vault/Pending_Approval/*.md AI_Employee_Vault/Approved/
 ## 📋 Workflow Overview
 
 ```
-📥 Inbox/
+| Inbox/ | 1 | 📥 |
     │
     ▼ (File dropped)
 🔄 Auto-Detect → 📊 Dashboard Updated
@@ -138,21 +169,21 @@ mv AI_Employee_Vault/Pending_Approval/*.md AI_Employee_Vault/Approved/
 📋 Create Plan → Plans/
     │
     ▼
-⏳ Move to Pending_Approval/
+| Pending_Approval/ | 0 | ✅ |
     │
     ▼
-🙋 YOU: Move to Approved/
+| Approved/ | 1 | ✅ |
     │
     ▼
 ✅ Auto-Execute:
-   ├── 🎯 Action → Needs_Action/
-   ├── 💰 Entry → Accounting/
+| Needs_Action/ | 1 | ✅ |
+| Accounting/ | 1 | ✅ |
    ├── 📝 Log → Updates/
    ├── 📊 Dashboard Update
-   └── 📦 Move to Done/
+| Done/ | 0 | ✅ |
 ```
 
-**You only do ONE thing:** Move file from `Pending_Approval/` to `Approved/`
+| Approved/ | 1 | ✅ |
 
 ---
 

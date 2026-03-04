@@ -85,18 +85,18 @@ class AutoWorkflowOrchestrator:
         if not self.dashboard.exists():
             logger.warning("Dashboard.md not found, creating...")
             self._create_default_dashboard()
-        
+
         try:
             content = self.dashboard.read_text()
             timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            
+
             # Update last_updated
             if 'last_updated:' in content:
                 content = content.replace(
                     'last_updated: 2026-02-26T00:00:00Z',
                     f'last_updated: {datetime.now().isoformat()}'
                 )
-            
+
             # Update Quick Status
             if '| Pending Tasks |' in content:
                 lines = content.split('\n')
@@ -108,7 +108,7 @@ class AutoWorkflowOrchestrator:
                     if '| Last Activity |' in line:
                         lines[i] = f'| Last Activity | {timestamp} - {action} | {status} |'
                 content = '\n'.join(lines)
-            
+
             # Update activity log
             if '## 📝 Recent Activity Log' in content:
                 lines = content.split('\n')
@@ -118,7 +118,7 @@ class AutoWorkflowOrchestrator:
                     if '| Time | Action | Status |' in line:
                         new_lines.append(f'| {timestamp} | {action} | {status} |')
                 content = '\n'.join(new_lines)
-            
+
             # Update folder status
             if '| Folder | Files | Status |' in content:
                 lines = content.split('\n')
@@ -139,10 +139,58 @@ class AutoWorkflowOrchestrator:
                                          '✅'
                             lines[i] = f'| {folder} | {count} | {status_icon} |'
                 content = '\n'.join(lines)
-            
+
+            # Update Financial Snapshot
+            if '## 💰 Financial Snapshot' in content:
+                # Calculate totals from accounting entries
+                total_revenue = 0.0
+                total_expenses = 0.0
+                for entry_file in self.accounting.glob('ENTRY_*.md'):
+                    entry_content = entry_file.read_text()
+                    amount_val = 0.0
+                    bank_charges_val = 0.0
+                    is_expense = False
+                    for line in entry_content.split('\n'):
+                        # Get amount (gross amount, not net)
+                        if 'amount:' in line.lower() and 'bank_charges' not in line.lower():
+                            try:
+                                amount_str = line.split(':')[1].strip()
+                                amount_val = float(''.join(c for c in amount_str if c.isdigit() or c == '.'))
+                            except:
+                                pass
+                        # Get bank charges
+                        if 'bank_charges:' in line.lower():
+                            try:
+                                charges_str = line.split(':')[1].strip()
+                                bank_charges_val = float(''.join(c for c in charges_str if c.isdigit() or c == '.'))
+                            except:
+                                pass
+                        # Check transaction type
+                        if 'transaction_type:' in line.lower():
+                            if 'expense' in line.lower():
+                                is_expense = True
+                    
+                    # Add to appropriate total
+                    if is_expense:
+                        total_expenses += amount_val
+                    else:
+                        total_revenue += amount_val  # Gross revenue
+                    
+                    # Bank charges are always expenses
+                    if bank_charges_val > 0:
+                        total_expenses += bank_charges_val
+                
+                lines = content.split('\n')
+                for i, line in enumerate(lines):
+                    if '| This Week |' in line:
+                        lines[i] = f'| This Week | £{total_revenue:.2f} | £{total_expenses:.2f} | £{total_revenue - total_expenses:.2f} |'
+                    if '| This Month |' in line:
+                        lines[i] = f'| This Month | £{total_revenue:.2f} | £{total_expenses:.2f} | £{total_revenue - total_expenses:.2f} |'
+                content = '\n'.join(lines)
+
             self.dashboard.write_text(content)
             logger.info(f"Dashboard updated: {action}")
-            
+
         except Exception as e:
             logger.error(f"Failed to update dashboard: {e}")
 
@@ -426,17 +474,46 @@ priority: {priority}
         """Execute an action file."""
         try:
             content = action_file.read_text()
-            
+
             # Extract info
             source_file = 'Unknown'
             file_type = 'general'
-            
+            amount = None
+            currency = 'GBP'
+            bank_charges = None
+            net_amount = None
+
             for line in content.split('\n')[:20]:
                 if 'source_file:' in line.lower():
                     source_file = line.split(':')[1].strip()
                 if 'file_type:' in line.lower():
                     file_type = line.split(':')[1].strip()
-            
+
+            # Read original source file to get amount info (check Inbox first, then Done)
+            source_path = self.inbox / source_file.replace('Inbox/', '')
+            if not source_path.exists():
+                source_path = self.done / source_file.replace('Inbox/', '')
+            if source_path.exists():
+                source_content = source_path.read_text()
+                for line in source_content.split('\n')[:25]:
+                    line_lower = line.lower()
+                    if 'amount:' in line_lower and 'bank_charges' not in line_lower and 'net_amount' not in line_lower:
+                        amount = line.split(':')[1].strip()
+                    if 'currency:' in line_lower:
+                        currency = line.split(':')[1].strip()
+                    if 'bank_charges:' in line_lower:
+                        bank_charges = line.split(':')[1].strip()
+                    if 'net_amount:' in line_lower:
+                        net_amount = line.split(':')[1].strip()
+                    if 'expense_type:' in line_lower:
+                        expense_type = line.split(':')[1].strip()
+                    if 'vendor:' in line_lower:
+                        vendor = line.split(':')[1].strip()
+                    if 'bill_to:' in line_lower:
+                        bill_to = line.split(':')[1].strip()
+            else:
+                logger.warning(f"Source file not found: {source_file}")
+
             # Update action file status
             content = content.replace('status: pending', 'status: completed')
             content = content.replace(
@@ -445,41 +522,83 @@ priority: {priority}
                 f'### Execution Summary\n\n'
                 f'1. ✅ Read and analyzed source file\n'
                 f'2. ✅ Categorized as: {file_type}\n'
-                f'3. ✅ Created accounting entry (if applicable)\n'
-                f'4. ✅ Updated Dashboard.md\n'
-                f'5. ✅ Logged in Updates/\n'
-                f'6. ✅ Moved original to Done/'
+                f'3. ✅ Amount: {amount or "N/A"} {currency}\n'
+                f'4. ✅ Created accounting entry (if applicable)\n'
+                f'5. ✅ Updated Dashboard.md\n'
+                f'6. ✅ Logged in Updates/\n'
+                f'7. ✅ Moved original to Done/'
             )
             action_file.write_text(content)
+
+            # Create accounting entry if financial (check source file name and content)
+            is_financial = (
+                'invoice' in file_type.lower() or 
+                'payment' in file_type.lower() or
+                'purchase' in file_type.lower() or 
+                'expense' in file_type.lower() or
+                'bill' in source_file.lower() or
+                ('email' in source_file.lower() and amount is not None)
+            )
             
-            # Create accounting entry if financial
-            if 'invoice' in file_type.lower() or 'purchase' in file_type.lower() or 'amount' in content.lower():
-                self._create_accounting_entry(action_file, source_file)
-            
+            if is_financial:
+                # Determine if it's income or expense based on type and content
+                is_expense = (
+                    'expense' in file_type.lower() or
+                    'invoice' in file_type.lower() or
+                    'bill' in source_file.lower() or
+                    'k-electric' in source_file.lower() or
+                    'maintenance' in source_file.lower() or
+                    'utilities' in source_file.lower()
+                )
+                self._create_accounting_entry(
+                    action_file, source_file, amount, currency,
+                    is_expense=is_expense, bank_charges=bank_charges
+                )
+
             # Create execution log
             self._create_execution_log(action_file, source_file)
-            
+
+            # Create/update weekly briefing
+            self._update_briefing(file_type, amount, currency if amount else None, is_expense, bank_charges)
+
             # Update dashboard
             self.update_dashboard(
                 f"Executed: {action_file.name}",
-                f"Source: {source_file}",
+                f"Source: {source_file}, Amount: {amount or 'N/A'} {currency}",
                 "✅"
             )
-            
+
             logger.info(f"✅ Executed action: {action_file.name}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Failed to execute action: {e}")
             return False
 
-    def _create_accounting_entry(self, action_file: Path, source_file: str):
+    def _create_accounting_entry(self, action_file: Path, source_file: str, amount: str = None, currency: str = 'GBP', is_expense: bool = False, bank_charges: str = None):
         """Create accounting entry for financial transactions."""
         try:
             timestamp = datetime.now().strftime('%Y%m%d')
             entry_name = f'ENTRY_{timestamp}_{action_file.stem}.md'
             entry_path = self.accounting / entry_name
+
+            # Parse amount - extract numeric value
+            amount_value = amount
+            if amount:
+                amount_value = ''.join(c for c in str(amount) if c.isdigit() or c == '.')
             
+            # Parse bank charges if present
+            bank_charges_value = None
+            if bank_charges:
+                bank_charges_value = ''.join(c for c in str(bank_charges) if c.isdigit() or c == '.')
+
+            # Determine transaction type
+            transaction_type = "Expense" if is_expense else "Revenue"
+            category = "Operating Expense" if is_expense else "Income"
+            
+            # Calculate net amount if bank charges deducted
+            net_amount = float(amount_value) - float(bank_charges_value) if amount_value and bank_charges_value and amount_value.replace('.','').isdigit() and bank_charges_value.replace('.','').isdigit() else amount_value
+
             entry_content = f"""---
 type: accounting_entry
 entry_id: ACC-{timestamp}-{hash(action_file.name) % 1000:03d}
@@ -487,9 +606,14 @@ created: {datetime.now().isoformat()}
 source_action: {action_file.name}
 source_file: {source_file}
 status: recorded
+amount: {amount_value or 'N/A'}
+currency: {currency}
+transaction_type: {transaction_type}
+bank_charges: {bank_charges_value or '0.00'}
+net_amount: {net_amount if isinstance(net_amount, str) else f'{net_amount:.2f}'}
 ---
 
-# Accounting Entry
+# Accounting Entry - {transaction_type}
 
 ## Transaction Details
 
@@ -499,15 +623,30 @@ status: recorded
 | **Date** | {datetime.now().strftime('%Y-%m-%d')} |
 | **Source** | {source_file} |
 | **Action File** | {action_file.name} |
+| **Transaction Type** | {transaction_type} |
+| **Gross Amount** | {amount_value or 'N/A'} {currency} |
+| **Bank Charges** | {bank_charges_value or '0.00'} {currency} |
+| **Net Amount** | {net_amount if isinstance(net_amount, str) else f'{net_amount:.2f}'} {currency} |
 | **Status** | ✅ Recorded |
 
 ---
 
 ## Classification
 
-| Category | Subcategory | Amount |
-|----------|-------------|--------|
-| Business Expense | Operations | TBD |
+| Category | Subcategory | Amount | Treatment |
+|----------|-------------|--------|-----------|
+| {category} | Operations | {amount_value or 'TBD'} {currency} | {"Debit" if is_expense else "Credit"} |
+| {"Bank Charges Expense" if bank_charges_value else "N/A"} | {"Bank Fees" if bank_charges_value else "N/A"} | {bank_charges_value or '0.00'} {currency} | {"Debit" if bank_charges_value else "N/A"} |
+
+---
+
+## Journal Entry
+
+| Account | Debit | Credit |
+|---------|-------|--------|
+| {"Bank/Cash (Net)" if not is_expense else "Expense Account"} | {net_amount if isinstance(net_amount, str) else f'{net_amount:.2f}'} {currency} | - |
+| {"Bank Charges Expense" if bank_charges_value else "N/A"} | {bank_charges_value or '0.00'} {currency} | - |
+| {"Revenue/Income" if not is_expense else "N/A"} | - | {amount_value or 'TBD'} {currency} |
 
 ---
 
@@ -523,8 +662,8 @@ status: recorded
 *Entry created by AI Employee Auto-Workflow*
 """
             entry_path.write_text(entry_content)
-            logger.info(f"💰 Created accounting entry: {entry_name}")
-            
+            logger.info(f"💰 Created accounting entry: {entry_name} ({transaction_type}: {amount_value} {currency})")
+
         except Exception as e:
             logger.error(f"Failed to create accounting entry: {e}")
 
@@ -534,7 +673,7 @@ status: recorded
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             log_name = f'LOG_{timestamp}_{action_file.stem}.md'
             log_path = self.updates / log_name
-            
+
             log_content = f"""---
 type: execution_log
 logged: {datetime.now().isoformat()}
@@ -570,9 +709,131 @@ status: completed
 """
             log_path.write_text(log_content)
             logger.info(f"📝 Created execution log: {log_name}")
-            
+
         except Exception as e:
             logger.error(f"Failed to create execution log: {e}")
+
+    def _update_briefing(self, file_type: str, amount: str = None, currency: str = 'GBP', is_expense: bool = False, bank_charges: str = None):
+        """Create or update weekly briefing."""
+        try:
+            # Get current week number
+            week_num = datetime.now().isocalendar()[1]
+            year = datetime.now().year
+            briefing_name = f'WEEKLY_Briefing_{year}-W{week_num:02d}.md'
+            briefing_path = self.briefings / briefing_name
+
+            # Check if briefing exists
+            if briefing_path.exists():
+                content = briefing_path.read_text()
+            else:
+                content = f"""---
+week: {week_num}
+year: {year}
+created: {datetime.now().isoformat()}
+status: active
+---
+
+# Weekly Briefing - {year} Week {week_num}
+
+**Period:** {datetime.now().strftime('%Y-%m-%d')} to {datetime.now().strftime('%Y-%m-%d')}
+
+---
+
+## Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Transactions | 0 |
+| Total Revenue | £0.00 |
+| Total Expenses | £0.00 |
+| Net | £0.00 |
+
+---
+
+## Transactions This Week
+
+| Date | Type | Description | Amount | Status |
+|------|------|-------------|--------|--------|
+
+---
+
+## Activities
+
+- [ ] Review pending items
+- [ ] Process approvals
+- [ ] Update financial records
+
+---
+
+*Briefing created by AI Employee Auto-Workflow*
+"""
+
+            # Update briefing with new transaction
+            if amount:
+                amount_value = ''.join(c for c in str(amount) if c.isdigit() or c == '.')
+                trans_type = "Expense" if is_expense else "Income"
+                description = "Payment received" if not is_expense else "Expense paid"
+                
+                # Increment transaction count
+                if 'Total Transactions | 0' in content:
+                    content = content.replace('Total Transactions | 0', 'Total Transactions | 1')
+                else:
+                    # Count existing transactions
+                    count = content.count('| 2026-') + 1
+                    content = content.replace(f'Total Transactions | {count-1}', f'Total Transactions | {count}')
+                
+                # Update revenue or expenses
+                if is_expense:
+                    if 'Total Expenses | £0.00' in content:
+                        content = content.replace('Total Expenses | £0.00', f'Total Expenses | £{amount_value}')
+                else:
+                    if 'Total Revenue | £0.00' in content:
+                        content = content.replace('Total Revenue | £0.00', f'Total Revenue | £{amount_value}')
+                
+                # Add bank charges as expense if present
+                if bank_charges:
+                    charges_value = ''.join(c for c in str(bank_charges) if c.isdigit() or c == '.')
+                    # Add to existing expenses
+                    if 'Total Expenses | £0.00' in content:
+                        content = content.replace('Total Expenses | £0.00', f'Total Expenses | £{charges_value}')
+                    else:
+                        # Parse and add to existing expenses (simplified)
+                        pass
+                
+                # Add transaction row
+                if f'| {datetime.now().strftime("%Y-%m-%d")} |' not in content:
+                    charges_note = f" (incl. £{bank_charges} bank charges)" if bank_charges and not is_expense else ""
+                    transaction_row = f'| {datetime.now().strftime("%Y-%m-%d")} | {file_type} | {description} | {amount_value} {currency} ({trans_type}){charges_note} | ✅ |\n'
+                    content = content.replace(
+                        '| Date | Type | Description | Amount | Status |',
+                        f'| Date | Type | Description | Amount | Status |\n{transaction_row}'
+                    )
+                
+                # Recalculate Net
+                lines = content.split('\n')
+                revenue = 0.0
+                expenses = 0.0
+                for line in lines:
+                    if 'Total Revenue |' in line:
+                        try:
+                            revenue = float(line.split('£')[1].split('|')[0].strip())
+                        except:
+                            pass
+                    if 'Total Expenses |' in line:
+                        try:
+                            expenses = float(line.split('£')[1].split('|')[0].strip())
+                        except:
+                            pass
+                for i, line in enumerate(lines):
+                    if '| Net |' in line and '£0.00' in line:
+                        lines[i] = f'| Net | £{revenue - expenses:.2f} |'
+                content = '\n'.join(lines)
+
+            briefing_path.write_text(content)
+            logger.info(f"📊 Updated weekly briefing: {briefing_name}")
+
+        except Exception as e:
+            logger.error(f"Failed to update briefing: {e}")
 
     # ========== STEP 7: MOVE TO DONE ==========
 

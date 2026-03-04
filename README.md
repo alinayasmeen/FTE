@@ -1,6 +1,6 @@
 # FTE - Full Time AI Employee
 
-> **Personal AI Employee** — An autonomous AI agent built with Qwen Code + Obsidian for 24/7 task processing.
+> **Personal AI Employee** — An autonomous AI agent built with Qwen Code + Obsidian for 24/7 task processing with full financial tracking.
 
 ## 🎯 Project Status
 
@@ -14,14 +14,19 @@
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │   PERCEPTION    │────▶│    REASONING    │────▶│     ACTION      │
 │                 │     │                 │     │                 │
-│ File Watcher    │     │   Qwen Code     │     │ File Operations │
-│                 │     │                 │     │ Dashboard Update│
+│ Auto Workflow   │     │   Qwen Code     │     │ File Operations │
+│ (auto_workflow) │     │   (Optional)    │     │ Dashboard Update│
 └─────────────────┘     └─────────────────┘     └─────────────────┘
          │                       │                       │
          ▼                       ▼                       ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    OBSIDIAN VAULT (Memory)                      │
-│  /Inbox → /Needs_Action → /Done                                 │
+│  /Inbox → Plan → Pending_Approval → [YOU] → Approved → Done     │
+│                          │                                      │
+│                          ▼                                      │
+│                   /Accounting (Revenue/Expenses)                │
+│                   /Briefings (Weekly Reports)                   │
+│                   /Updates (Execution Logs)                     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -37,21 +42,27 @@ FTE/
 ├── qwen-config.json                   # Qwen settings
 │
 ├── AI_Employee_Vault/                 # Obsidian Vault
-│   ├── Dashboard.md                   # Main dashboard
+│   ├── Dashboard.md                   # Main dashboard with financial snapshot
 │   ├── Company_Handbook.md            # Rules & SOPs
 │   ├── QUICKSTART.md                  # Quick start guide
 │   ├── Inbox/                         # Drop folder for new files
-│   ├── Needs_Action/                  # Files awaiting processing
+│   ├── Plans/                         # Auto-generated processing plans
+│   ├── Pending_Approval/              # Awaiting your approval
+│   ├── Approved/                      # Approved (auto-executes)
+│   ├── Needs_Action/                  # Actions to execute
 │   ├── Done/                          # Completed tasks
-│   ├── Pending_Approval/              # Awaiting human approval
-│   ├── Approved/                      # Approved actions
-│   ├── Skills/
-│   │   └── file-processor.md          # Agent skill definition
-│   └── ...
+│   ├── Accounting/                    # Financial entries (Revenue/Expenses)
+│   ├── Briefings/                     # Weekly reports
+│   ├── Updates/                       # Execution logs
+│   ├── Files/                         # Reference files
+│   └── Skills/
+│       └── file-processor.md          # Agent skill definition
 │
 └── scripts/
-    ├── filesystem_watcher.py          # Monitors Inbox for new files
-    └── ralph_orchestrator.py          # Autonomous processing loop
+    ├── auto_workflow.py               # 🆕 Complete automation with financial tracking
+    ├── filesystem_watcher.py          # Legacy: Monitors Inbox
+    ├── ralph_orchestrator.py          # Legacy: Autonomous loop
+    └── orchestrator.py                # Legacy: Combined script
 ```
 
 ---
@@ -68,208 +79,280 @@ pip install -r requirements.txt
 ### 2. Start Full Automation (Recommended)
 
 ```bash
-# Start the combined orchestrator with Qwen integration
-./scripts/start-automation.sh
+# Start the auto workflow in watch mode
+cd /home/alina/Hackathon_4/FTE
+source .venv/bin/activate  # If using virtual environment
 
-# Or run directly:
-python scripts/orchestrator.py \
-  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
-  --watch \
-  --interval 5
+python scripts/auto_workflow.py --watch
 ```
 
-### 3. Test the Workflow
+### 3. Test the Complete Workflow
 
-**Simple Mode (Auto-processing):**
-1. Drop a file into `AI_Employee_Vault/Inbox/`
-2. Orchestrator auto-creates action file in `Needs_Action/`
-3. Orchestrator auto-processes and moves to `Done/`
-4. Dashboard updates automatically
-
-**Approval Workflow (HITL):**
-1. Create approval file in `Pending_Approval/`
-2. **You move it to** `Approved/`
-3. Orchestrator auto-executes the approval
-4. Creates accounting entry, logs to `Updates/`
-5. Moves to `Done/`
-
-### 4. Legacy Scripts (Still Available)
-
+**Step 1: Drop a file in Inbox/**
 ```bash
-# File watcher only
-python scripts/filesystem_watcher.py \
-  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
-  --drop-folder /home/alina/Hackathon_4/FTE/AI_Employee_Vault/Inbox
+cat > AI_Employee_Vault/Inbox/TEST_Payment_2026-03-04.md << 'EOF'
+---
+type: payment
+from: customer@example.com
+subject: Payment Received - £100.00
+received: 2026-03-04T14:30:00Z
+priority: high
+amount: 100.00
+currency: GBP
+bank_charges: 2.50
+net_amount: 97.50
+---
 
-# Ralph loop only
-python scripts/ralph_orchestrator.py \
-  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
-  --max-iterations 10
+# Payment Received
 
-# Qwen integration only
-python scripts/qwen_integration.py \
-  --vault-path /home/alina/Hackathon_4/FTE/AI_Employee_Vault \
-  --watch
+**Gross Amount:** £100.00 GBP
+**Bank Charges:** £2.50 GBP
+**Net Received:** £97.50 GBP
+EOF
 ```
+
+**Step 2: Watch Obsidian Dashboard Update**
+- Plan automatically created in `Pending_Approval/`
+- Dashboard shows "1 Pending Approval"
+
+**Step 3: Approve (YOUR ONLY MANUAL STEP)**
+```bash
+# In Obsidian: Right-click file → Move to Approved/
+# Or in terminal:
+mv AI_Employee_Vault/Pending_Approval/*.md AI_Employee_Vault/Approved/
+```
+
+**Step 4: Watch Auto-Execution Complete!**
+- ✅ Accounting entry created (Revenue: £100, Expenses: £2.50)
+- ✅ Weekly Briefing updated
+- ✅ Dashboard Financial Snapshot updated
+- ✅ Execution log created
+- ✅ Original file moved to Done/
 
 ---
 
-## 🔄 Workflow
-
-### **Automated Workflow (With Qwen Integration)**
+## 🔄 Complete Auto Workflow
 
 ```
-1. Drop file in /Inbox
+1. 📥 Drop file in Inbox/
          │
          ▼
-2. Orchestrator detects → creates action file in /Needs_Action
+2. 🔄 Auto-Detect → Dashboard Updated
          │
          ▼
-3. Orchestrator auto-processes → updates Dashboard
+3. 📋 Create Plan → Plans/
          │
          ▼
-4. File moved to /Done
+4. ⏳ Move to Pending_Approval/
          │
          ▼
-✅ COMPLETE (No manual intervention needed)
+5. 🙋 YOU: Move to Approved/ (ONLY MANUAL STEP)
+         │
+         ▼
+6. ✅ Auto-Execute:
+   ├── 🎯 Create Action → Needs_Action/
+   ├── 💰 Accounting Entry → Accounting/
+   │   ├── Revenue tracking (gross amount)
+   │   ├── Expense tracking (bank charges, bills)
+   │   └── Journal entries (Debit/Credit)
+   ├── 📝 Execution Log → Updates/
+   ├── 📊 Dashboard Update
+   │   ├── Financial Snapshot (Revenue/Expenses/Net)
+   │   └── Activity Log
+   ├── 📰 Weekly Briefing → Briefings/
+   │   ├── Transaction count
+   │   ├── Revenue total
+   │   ├── Expenses total
+   │   └── Net calculation
+   └── 📦 Move to Done/
+         │
+         ▼
+7. ✅ COMPLETE - All folders clean!
 ```
 
-### **Approval Workflow (HITL)**
+**You only do ONE thing:** Move file from `Pending_Approval/` to `Approved/`
 
-```
-1. Create approval request in /Pending_Approval
-         │
-         ▼
-2. 🙋 YOU review and move to /Approved
-         │
-         ▼
-3. Orchestrator detects → auto-executes
-         │
-         ├──→ Creates accounting entry in /Accounting
-         ├──→ Logs execution in /Updates
-         └──→ Updates Dashboard
-         │
-         ▼
-4. File moved to /Done (renamed COMPLETED_*)
-         │
-         ▼
-✅ COMPLETE
-```
+---
 
-### File Frontmatter Format
+## 💰 Financial Tracking Features
+
+### Supported Transaction Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **Revenue/Income** | Payments received from customers | ASDA payment, client invoices |
+| **Expenses** | Bills and operating costs | K-Electric, maintenance, utilities |
+| **Bank Charges** | Fees deducted from payments | Intermediary bank fees |
+
+### Accounting Entry Format
 
 ```yaml
 ---
-type: file_drop|email|approval_request
-from: Source
-subject: Description
-received: 2026-03-01T00:00:00Z
-priority: high|medium|low
-status: pending|completed
+type: accounting_entry
+entry_id: ACC-20260304-001
+amount: 650.00
+currency: GBP
+transaction_type: Revenue  # or Expense
+bank_charges: 5.00
+net_amount: 645.00
 ---
+```
+
+### Journal Entry Example (Payment with Bank Charges)
+
+| Account | Debit | Credit |
+|---------|-------|--------|
+| Bank/Cash (Net) | £645.00 | - |
+| Bank Charges Expense | £5.00 | - |
+| Revenue/Income | - | £650.00 |
+
+### Dashboard Financial Snapshot
+
+```markdown
+## 💰 Financial Snapshot
+
+| Period | Revenue | Expenses | Net |
+|--------|---------|----------|-----|
+| This Week | £650.00 | £5.00 | £645.00 |
+| This Month | £650.00 | £5.00 | £645.00 |
 ```
 
 ---
 
-## 📋 Bronze Tier Features
+## 📋 File Frontmatter Format
 
-| Component | Status | Description |
-|-----------|--------|-------------|
-| **Obsidian Vault** | ✅ | Dashboard, Company Handbook, folder structure |
-| **File System Watcher** | ✅ | Monitors Inbox, creates action files |
-| **Qwen Integration** | ✅ | Auto-processes Approved/ folder |
-| **Combined Orchestrator** | ✅ | Full automation (Inbox → Done) |
-| **Agent Skills** | ✅ | `file-processor.md` skill definition |
-| **Ralph Loop** | ✅ | Autonomous processing orchestrator |
-| **Accounting Integration** | ✅ | Auto-creates expense entries |
-| **Weekly Briefings** | ✅ | Auto-generated reports |
+### Payment/Income Email
+```yaml
+---
+type: payment
+from: payments@asda.co.uk
+subject: Payment Received - £650.00 GBP
+received: 2026-03-04T14:30:00Z
+priority: high
+amount: 650.00
+currency: GBP
+bank_charges: 5.00
+net_amount: 645.00
+---
+```
+
+### Expense/Bill Email
+```yaml
+---
+type: expense
+from: billing@k-electric.com
+subject: Electricity Bill - March 2026
+received: 2026-03-04T10:00:00Z
+priority: medium
+amount: 150.00
+currency: GBP
+vendor: K-Electric
+due_date: 2026-03-15
+---
+```
+
+### Invoice
+```yaml
+---
+type: invoice
+from: supplier@example.com
+invoice_number: INV-2026-001
+received: 2026-03-04T09:00:00Z
+priority: medium
+amount: 250.00
+currency: GBP
+due_date: 2026-03-20
+---
+```
 
 ---
 
 ## 🛠️ Scripts
 
-### orchestrator.py (Recommended - Combined)
+### auto_workflow.py (🆕 Recommended)
 
-**Full automation with Qwen integration.** Monitors all folders and auto-processes.
+**Complete automation with full financial tracking.**
 
 **Features:**
-- Inbox → Needs_Action (auto-create action files)
-- Needs_Action → Done (auto-process tasks)
-- Approved → Done (auto-execute approvals with accounting)
-- Dashboard auto-updates
-- Single script for full workflow
+- ✅ Inbox monitoring and plan creation
+- ✅ Approval workflow (Pending_Approval → Approved)
+- ✅ Auto-execution after approval
+- ✅ Accounting entries (Revenue & Expenses)
+- ✅ Bank charges tracking
+- ✅ Weekly briefings with financial summary
+- ✅ Dashboard updates (Financial Snapshot)
+- ✅ Execution logging
 
 **Usage:**
 ```bash
-# Watch mode (continuous)
-python scripts/orchestrator.py --vault-path /path/to/vault --watch
+# Watch mode (continuous monitoring)
+python scripts/auto_workflow.py --watch
 
 # Single run
-python scripts/orchestrator.py --vault-path /path/to/vault
+python scripts/auto_workflow.py
 ```
 
-### start-automation.sh (Easiest)
+### Legacy Scripts (Still Available)
 
-**One-command startup** for full automation.
+| Script | Purpose | Status |
+|--------|---------|--------|
+| `orchestrator.py` | Combined workflow | 🟡 Legacy |
+| `qwen_integration.py` | Approval processor | 🟡 Legacy |
+| `filesystem_watcher.py` | Inbox monitor | 🟡 Legacy |
+| `ralph_orchestrator.py` | Autonomous loop | 🟡 Legacy |
 
-```bash
-./scripts/start-automation.sh
-```
+---
 
-### qwen_integration.py (Approval Processor)
+## 📊 Folder Usage
 
-**Qwen integration for Approved/ folder.** Auto-executes approvals.
-
-**Features:**
-- Monitors Approved/ folder
-- Auto-executes approved requests
-- Creates accounting entries
-- Logs to Updates/
-- Moves to Done/
-
-**Usage:**
-```bash
-python scripts/qwen_integration.py --vault-path /path/to/vault --watch
-```
-
-### filesystem_watcher.py (Legacy)
-
-Monitors the Inbox folder for new files and creates actionable `.md` files in `Needs_Action`.
-
-**Features:**
-- Detects priority keywords (urgent, important, normal)
-- Identifies file types (document, invoice, image)
-- Tracks processed files to avoid duplicates
-- Configurable check interval
-
-### ralph_orchestrator.py (Legacy)
-
-Manages autonomous processing iterations using the Ralph Wiggum Loop pattern.
-
-**Features:**
-- Creates state files for Qwen to process
-- Checks completion criteria
-- Updates Dashboard with activity
-- Configurable max iterations
+| Folder | Purpose | Auto-Cleaned |
+|--------|---------|--------------|
+| `Inbox/` | Drop new files here | ✅ Yes |
+| `Plans/` | Temporary (plan creation) | ✅ Yes |
+| `Pending_Approval/` | Awaiting your approval | ⏳ Until approved |
+| `Approved/` | Approved plans | ✅ Yes |
+| `Needs_Action/` | Actions to execute | ✅ Yes |
+| `Done/` | Completed items | 📦 Archive |
+| `Accounting/` | Financial entries | 📊 Keep |
+| `Updates/` | Execution logs | 📊 Keep |
+| `Briefings/` | Weekly reports | 📊 Keep |
+| `Files/` | Reference copies | 📊 Keep |
 
 ---
 
 ## 📚 Documentation
 
 - **[Bronze Tier Report](./BRONZE_TIER_COMPLETE.md)** - Detailed completion checklist
-- **[Quick Start](./AI_Employee_Vault/QUICKSTART.md)** - Step-by-step guide
+- **[Quick Start](./AI_Employee_Vault/QUICKSTART.md)** - Step-by-step guide (WSL setup)
 - **[Company Handbook](./AI_Employee_Vault/Company_Handbook.md)** - Rules & SOPs
-- **[Dashboard](./AI_Employee_Vault/Dashboard.md)** - Live status
+- **[Dashboard](./AI_Employee_Vault/Dashboard.md)** - Live status with financial snapshot
+- **[Auto Workflow Guide](./scripts/AUTO_WORKFLOW_GUIDE.md)** - Detailed workflow docs
 
 ---
 
 ## 🎯 Next Steps (Silver Tier)
 
-- [ ] Gmail Watcher for email processing
+- [ ] Gmail Watcher for automatic email processing
 - [ ] WhatsApp Watcher for message monitoring
-- [ ] MCP server for sending emails
-- [ ] Human-in-the-loop approval workflow
+- [ ] MCP server for sending emails automatically
 - [ ] Scheduled tasks via cron
+- [ ] Multi-currency support
+- [ ] Financial reports (P&L, Balance Sheet)
+
+---
+
+## 🏆 Bronze Tier Achievements
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Obsidian Vault** | ✅ | Dashboard, Handbook, folder structure |
+| **Auto Workflow** | ✅ | Complete automation (Inbox → Done) |
+| **Approval Workflow** | ✅ | Human-in-the-loop (Pending_Approval → Approved) |
+| **Financial Tracking** | ✅ | Revenue, Expenses, Bank Charges |
+| **Accounting Entries** | ✅ | Auto-created with journal entries |
+| **Weekly Briefings** | ✅ | Auto-generated with transaction summary |
+| **Dashboard Updates** | ✅ | Real-time Financial Snapshot |
+| **Execution Logging** | ✅ | All actions logged in Updates/ |
 
 ---
 
@@ -280,3 +363,4 @@ MIT License - Copyright (c) 2026 Hafiza Alina Yasmeen
 ---
 
 *Built with Qwen Code + Obsidian + Python*
+*Full Financial Tracking: Revenue, Expenses, Bank Charges*
